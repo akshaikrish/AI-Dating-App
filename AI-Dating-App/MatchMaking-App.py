@@ -79,14 +79,14 @@ def vectorization(df, columns, input_df):
         y = vectorizer.transform(input_df[column_name].values.astype('U'))
 
         # Creating a new DF that contains the vectorized words
-        df_wrds = pd.DataFrame(x.toarray(), columns=vectorizer.get_feature_names())
+        df_wrds = pd.DataFrame(x.toarray(), columns=vectorizer.get_feature_names_out())
         
-        y_wrds = pd.DataFrame(y.toarray(), columns=vectorizer.get_feature_names(), index=input_df.index)
+        y_wrds = pd.DataFrame(y.toarray(), columns=vectorizer.get_feature_names_out(), index=input_df.index)
 
         # Concating the words DF with the original DF
-        new_df = pd.concat([df, df_wrds], axis=1)
+        new_df = pd.concat([df, df_wrds])
         
-        y_df = pd.concat([input_df, y_wrds], 1)
+        y_df = pd.concat([input_df, y_wrds])
 
         # Dropping the column because it is no longer needed in place of vectorization
         new_df = new_df.drop(column_name, axis=1)
