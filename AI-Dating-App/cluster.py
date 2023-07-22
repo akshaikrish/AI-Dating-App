@@ -1,34 +1,35 @@
-from numpy import unique
-from numpy import where
-from matplotlib import pyplot
-from sklearn.datasets import make_classification
-from sklearn.cluster import AgglomerativeClustering
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder
 
-# initialize the data set we'll work with
-training_data, _ = make_classification(
-    n_samples=1000,
-    n_features=2,
-    n_informative=2,
-    n_redundant=0,
-    n_clusters_per_class=1,
-    random_state=4
-)
+def clustering():
+    user_ID = 2
 
-# define the model
-agglomerative_model = AgglomerativeClustering(n_clusters=2)
+    # Read the CSV file into a pandas DataFrame
+    data = pd.read_csv('survey.csv')
 
-# assign each data point to a cluster
-agglomerative_result = agglomerative_model.fit_predict(training_data)
+    # Extract the survey answers
+    survey_answers = data.iloc[:, 1:]
 
-# get all of the unique clusters
-agglomerative_clusters = unique(agglomerative_result)
+    # Perform label encoding on the survey answers
+    label_encoder = LabelEncoder()
+    survey_answers_encoded = survey_answers.apply(label_encoder.fit_transform)
 
-# plot the clusters
-for agglomerative_cluster in agglomerative_clusters:
-    # get data points that fall in this cluster
-    index = where(agglomerative_result == agglomerative_clusters)
-    # make the plot
-    pyplot.scatter(training_data[index, 0], training_data[index, 1])
+    # Perform K-means clustering
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    kmeans.fit(survey_answers_encoded)
 
-# show the Agglomerative Hierarchy plot
-pyplot.show()
+    # Add the cluster labels to the DataFrame
+    data['Cluster'] = kmeans.labels_
+
+    # Print the cluster assignments
+    print(data[['User ID', 'Cluster']])
+
+
+    cluster_value = data.loc[data['User ID'] == user_ID, 'Cluster'].values[0]
+    cluster_data = data[data['Cluster'] == cluster_value]
+    updated_cluster_data = cluster_data.drop(cluster_data[cluster_data['User ID'] == user_ID].index)
+    print(updated_cluster_data['User ID'])
+    return updated_cluster_data
+
+clustering()
